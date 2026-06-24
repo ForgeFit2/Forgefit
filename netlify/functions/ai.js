@@ -2,24 +2,22 @@ export default async function handler(req) {
   try {
     const { goal } = JSON.parse(req.body);
 
-    const apiKey = process.env.OPENAI_API_KEY;
-
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`
+        "Authorization": "Bearer sk-WKLEJ_TUTAJ_KLUCZ"
       },
       body: JSON.stringify({
         model: "gpt-4o-mini",
         messages: [
           {
             role: "system",
-            content: "Jesteś trenerem personalnym. Dawaj krótkie plany treningowe."
+            content: "Jesteś trenerem personalnym."
           },
           {
             role: "user",
-            content: `Cel użytkownika: ${goal}`
+            content: `Zrób plan dla: ${goal}`
           }
         ]
       })
@@ -29,14 +27,14 @@ export default async function handler(req) {
 
     return new Response(
       JSON.stringify({
-        plan: data?.choices?.[0]?.message?.content || "Brak odpowiedzi AI ❌"
+        plan: data?.choices?.[0]?.message?.content || "AI nie odpowiedziało"
       }),
       { headers: { "Content-Type": "application/json" } }
     );
 
   } catch (e) {
     return new Response(
-      JSON.stringify({ plan: "SERVER ERROR ❌" }),
+      JSON.stringify({ plan: "server error ❌" }),
       { headers: { "Content-Type": "application/json" } }
     );
   }
