@@ -2,27 +2,130 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ForgeFit AI</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0f0f0f;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .container {
+      text-align: center;
+      animation: fadeIn 1s ease;
+    }
+
+    h1 {
+      font-size: 40px;
+      margin-bottom: 10px;
+      letter-spacing: 2px;
+    }
+
+    p {
+      opacity: 0.7;
+      margin-bottom: 30px;
+    }
+
+    input {
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      width: 220px;
+      text-align: center;
+      outline: none;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 10px;
+      background: white;
+      color: black;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      background: #dcdcdc;
+    }
+
+    #output {
+      margin-top: 25px;
+      opacity: 0.9;
+      white-space: pre-line;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .glow {
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(255,255,255,0.1), transparent);
+      top: -100px;
+      left: -100px;
+      animation: move 6s infinite alternate;
+    }
+
+    @keyframes move {
+      from { transform: translate(0,0); }
+      to { transform: translate(200px,200px); }
+    }
+
+  </style>
 </head>
-<body style="font-family: Arial; text-align:center; padding:40px;">
 
-  <h1>💪 ForgeFit AI</h1>
-  <p>Twój trener AI</p>
+<body>
 
-  <input id="goal" placeholder="Cel (np. masa)">
-  <br><br>
+  <div class="glow"></div>
 
-  <button onclick="generate()">Generuj plan</button>
+  <div class="container">
+    <h1>FORGEFIT AI</h1>
+    <p>Minimalistyczny trener siły</p>
 
-  <pre id="output" style="margin-top:20px;"></pre>
+    <input id="goal" placeholder="np. masa / siła / redukcja">
+
+    <br>
+
+    <button onclick="generate()">Generuj plan</button>
+
+    <div id="output"></div>
+  </div>
 
   <script>
     function generate() {
-      const goal = document.getElementById("goal").value;
+      const goal = document.getElementById("goal").value.toLowerCase();
+      let plan = "";
 
-      document.getElementById("output").innerText =
-        "Plan dla: " + goal + "\n\n" +
-        "1. Przysiady\n2. Wyciskanie\n3. Podciąganie\n4. Brzuch";
+      if (goal.includes("masa")) {
+        plan = "💪 PLAN MASA\n- Przysiady\n- Wyciskanie\n- Podciąganie\n- Brzuch";
+      } 
+      else if (goal.includes("siła")) {
+        plan = "⚡ PLAN SIŁA\n- Martwy ciąg\n- Wyciskanie ciężkie\n- Podciąganie z ciężarem";
+      } 
+      else if (goal.includes("redukcja")) {
+        plan = "🔥 PLAN REDUKCJA\n- Cardio\n- Full body\n- Brzuch + interwały";
+      } 
+      else {
+        plan = "Wpisz: masa / siła / redukcja";
+      }
+
+      document.getElementById("output").innerText = plan;
     }
   </script>
 
