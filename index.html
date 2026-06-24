@@ -15,45 +15,29 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  overflow-x: hidden;
-}
-
-.bg-glow {
-  position: absolute;
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, rgba(255,255,255,0.08), transparent);
-  top: -150px;
-  left: -150px;
-  animation: float 8s infinite alternate ease-in-out;
-}
-
-@keyframes float {
-  from { transform: translate(0,0); }
-  to { transform: translate(200px,200px); }
 }
 
 .container {
   width: 90%;
   max-width: 420px;
   text-align: center;
-  animation: fadeIn 1s ease;
+  animation: fadeIn 0.6s ease;
 }
 
 @keyframes fadeIn {
-  from {opacity:0; transform: translateY(20px);}
+  from {opacity:0; transform: translateY(10px);}
   to {opacity:1; transform: translateY(0);}
 }
 
 h1 {
-  font-size: 38px;
   letter-spacing: 3px;
+  margin-bottom: 10px;
 }
 
 .quote {
-  font-size: 14px;
-  opacity: 0.7;
-  margin-bottom: 25px;
+  font-size: 13px;
+  opacity: 0.6;
+  margin-bottom: 20px;
   font-style: italic;
 }
 
@@ -69,9 +53,8 @@ input {
 
 .tiles {
   display: grid;
-  grid-template-columns: 1fr;
   gap: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 
 .tile {
@@ -80,7 +63,7 @@ input {
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(255,255,255,0.1);
   cursor: pointer;
-  transition: 0.3s;
+  transition: 0.2s;
 }
 
 .tile:hover {
@@ -97,11 +80,11 @@ button {
   color: black;
   font-weight: bold;
   cursor: pointer;
-  transition: 0.3s;
+  transition: 0.2s;
 }
 
-button:hover {
-  transform: scale(1.05);
+button:active {
+  transform: scale(0.98);
 }
 
 #output {
@@ -110,33 +93,16 @@ button:hover {
   opacity: 0.9;
 }
 
-.progress {
-  margin-top: 20px;
-  height: 6px;
-  background: rgba(255,255,255,0.1);
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.progress-bar {
-  height: 100%;
-  width: 0%;
-  background: white;
-  transition: 0.5s;
-}
-
-.small {
-  font-size: 12px;
-  opacity: 0.5;
-  margin-top: 10px;
+.loading {
+  margin-top: 15px;
+  opacity: 0.6;
+  font-size: 13px;
 }
 
 </style>
 </head>
 
 <body>
-
-<div class="bg-glow"></div>
 
 <div class="container">
 
@@ -146,52 +112,55 @@ button:hover {
     "Nikt we mnie nie wierzy — więc zrobię to bez nich."
   </div>
 
-  <input id="goal" placeholder="Wpisz: masa / siła / redukcja">
+  <input id="goal" placeholder="Wpisz cel lub kliknij niżej">
 
   <div class="tiles">
-    <div class="tile">💪 Masa — buduj mięśnie</div>
-    <div class="tile">⚡ Siła — maksymalna moc</div>
-    <div class="tile">🔥 Redukcja — spalanie tłuszczu</div>
+    <div class="tile" onclick="setGoal('masa')">💪 Masa</div>
+    <div class="tile" onclick="setGoal('siła')">⚡ Siła</div>
+    <div class="tile" onclick="setGoal('redukcja')">🔥 Redukcja</div>
   </div>
 
   <button onclick="generate()">Generuj plan</button>
 
-  <div class="progress">
-    <div class="progress-bar" id="bar"></div>
-  </div>
-
+  <div class="loading" id="loading"></div>
   <div id="output"></div>
-
-  <div class="small">Twój AI trener adaptuje plan do celu</div>
 
 </div>
 
 <script>
 
-function generate() {
-  const goal = document.getElementById("goal").value.toLowerCase();
-  let plan = "";
-  let progress = 0;
+function setGoal(value) {
+  document.getElementById("goal").value = value;
+}
 
-  if (goal.includes("masa")) {
-    plan = "💪 PLAN MASA\n- Przysiady\n- Wyciskanie\n- Podciąganie\n- Brzuch";
-    progress = 70;
-  } 
-  else if (goal.includes("siła")) {
-    plan = "⚡ PLAN SIŁA\n- Martwy ciąg\n- Wyciskanie ciężkie\n- Podciąganie z ciężarem";
-    progress = 85;
-  } 
-  else if (goal.includes("redukcja")) {
-    plan = "🔥 PLAN REDUKCJA\n- Cardio\n- Interwały\n- Full body\n- Brzuch";
-    progress = 60;
-  } 
-  else {
-    plan = "Wpisz: masa / siła / redukcja";
-    progress = 10;
+async function generate() {
+  const goal = document.getElementById("goal").value;
+
+  if (!goal) {
+    document.getElementById("output").innerText = "Wpisz cel lub kliknij opcję 👆";
+    return;
   }
 
-  document.getElementById("output").innerText = plan;
-  document.getElementById("bar").style.width = progress + "%";
+  document.getElementById("loading").innerText = "AI myśli... 🧠";
+  document.getElementById("output").innerText = "";
+
+  try {
+    const res = await fetch("/.netlify/functions/ai", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ goal })
+    });
+
+    const data = await res.json();
+
+    document.getElementById("output").innerText = data.plan;
+  } catch (e) {
+    document.getElementById("output").innerText = "Błąd połączenia z AI ❌";
+  }
+
+  document.getElementById("loading").innerText = "";
 }
 
 </script>
