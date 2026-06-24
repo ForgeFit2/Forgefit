@@ -1,133 +1,200 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ForgeFit AI</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ForgeFit AI</title>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #0f0f0f;
-      color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      overflow: hidden;
-    }
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #0b0b0b;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
 
-    .container {
-      text-align: center;
-      animation: fadeIn 1s ease;
-    }
+.bg-glow {
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(255,255,255,0.08), transparent);
+  top: -150px;
+  left: -150px;
+  animation: float 8s infinite alternate ease-in-out;
+}
 
-    h1 {
-      font-size: 40px;
-      margin-bottom: 10px;
-      letter-spacing: 2px;
-    }
+@keyframes float {
+  from { transform: translate(0,0); }
+  to { transform: translate(200px,200px); }
+}
 
-    p {
-      opacity: 0.7;
-      margin-bottom: 30px;
-    }
+.container {
+  width: 90%;
+  max-width: 420px;
+  text-align: center;
+  animation: fadeIn 1s ease;
+}
 
-    input {
-      padding: 12px;
-      border-radius: 10px;
-      border: none;
-      width: 220px;
-      text-align: center;
-      outline: none;
-    }
+@keyframes fadeIn {
+  from {opacity:0; transform: translateY(20px);}
+  to {opacity:1; transform: translateY(0);}
+}
 
-    button {
-      margin-top: 20px;
-      padding: 12px 20px;
-      border: none;
-      border-radius: 10px;
-      background: white;
-      color: black;
-      cursor: pointer;
-      font-weight: bold;
-      transition: 0.3s;
-    }
+h1 {
+  font-size: 38px;
+  letter-spacing: 3px;
+}
 
-    button:hover {
-      transform: scale(1.05);
-      background: #dcdcdc;
-    }
+.quote {
+  font-size: 14px;
+  opacity: 0.7;
+  margin-bottom: 25px;
+  font-style: italic;
+}
 
-    #output {
-      margin-top: 25px;
-      opacity: 0.9;
-      white-space: pre-line;
-      animation: fadeIn 0.5s ease;
-    }
+input {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  text-align: center;
+  margin-bottom: 15px;
+  outline: none;
+}
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+.tiles {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-bottom: 20px;
+}
 
-    .glow {
-      position: absolute;
-      width: 400px;
-      height: 400px;
-      background: radial-gradient(circle, rgba(255,255,255,0.1), transparent);
-      top: -100px;
-      left: -100px;
-      animation: move 6s infinite alternate;
-    }
+.tile {
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  cursor: pointer;
+  transition: 0.3s;
+}
 
-    @keyframes move {
-      from { transform: translate(0,0); }
-      to { transform: translate(200px,200px); }
-    }
+.tile:hover {
+  transform: scale(1.03);
+  background: rgba(255,255,255,0.1);
+}
 
-  </style>
+button {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  background: white;
+  color: black;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  transform: scale(1.05);
+}
+
+#output {
+  margin-top: 20px;
+  white-space: pre-line;
+  opacity: 0.9;
+}
+
+.progress {
+  margin-top: 20px;
+  height: 6px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  background: white;
+  transition: 0.5s;
+}
+
+.small {
+  font-size: 12px;
+  opacity: 0.5;
+  margin-top: 10px;
+}
+
+</style>
 </head>
 
 <body>
 
-  <div class="glow"></div>
+<div class="bg-glow"></div>
 
-  <div class="container">
-    <h1>FORGEFIT AI</h1>
-    <p>Minimalistyczny trener siły</p>
+<div class="container">
 
-    <input id="goal" placeholder="np. masa / siła / redukcja">
+  <h1>FORGEFIT AI</h1>
 
-    <br>
-
-    <button onclick="generate()">Generuj plan</button>
-
-    <div id="output"></div>
+  <div class="quote">
+    "Nikt we mnie nie wierzy — więc zrobię to bez nich."
   </div>
 
-  <script>
-    function generate() {
-      const goal = document.getElementById("goal").value.toLowerCase();
-      let plan = "";
+  <input id="goal" placeholder="Wpisz: masa / siła / redukcja">
 
-      if (goal.includes("masa")) {
-        plan = "💪 PLAN MASA\n- Przysiady\n- Wyciskanie\n- Podciąganie\n- Brzuch";
-      } 
-      else if (goal.includes("siła")) {
-        plan = "⚡ PLAN SIŁA\n- Martwy ciąg\n- Wyciskanie ciężkie\n- Podciąganie z ciężarem";
-      } 
-      else if (goal.includes("redukcja")) {
-        plan = "🔥 PLAN REDUKCJA\n- Cardio\n- Full body\n- Brzuch + interwały";
-      } 
-      else {
-        plan = "Wpisz: masa / siła / redukcja";
-      }
+  <div class="tiles">
+    <div class="tile">💪 Masa — buduj mięśnie</div>
+    <div class="tile">⚡ Siła — maksymalna moc</div>
+    <div class="tile">🔥 Redukcja — spalanie tłuszczu</div>
+  </div>
 
-      document.getElementById("output").innerText = plan;
-    }
-  </script>
+  <button onclick="generate()">Generuj plan</button>
+
+  <div class="progress">
+    <div class="progress-bar" id="bar"></div>
+  </div>
+
+  <div id="output"></div>
+
+  <div class="small">Twój AI trener adaptuje plan do celu</div>
+
+</div>
+
+<script>
+
+function generate() {
+  const goal = document.getElementById("goal").value.toLowerCase();
+  let plan = "";
+  let progress = 0;
+
+  if (goal.includes("masa")) {
+    plan = "💪 PLAN MASA\n- Przysiady\n- Wyciskanie\n- Podciąganie\n- Brzuch";
+    progress = 70;
+  } 
+  else if (goal.includes("siła")) {
+    plan = "⚡ PLAN SIŁA\n- Martwy ciąg\n- Wyciskanie ciężkie\n- Podciąganie z ciężarem";
+    progress = 85;
+  } 
+  else if (goal.includes("redukcja")) {
+    plan = "🔥 PLAN REDUKCJA\n- Cardio\n- Interwały\n- Full body\n- Brzuch";
+    progress = 60;
+  } 
+  else {
+    plan = "Wpisz: masa / siła / redukcja";
+    progress = 10;
+  }
+
+  document.getElementById("output").innerText = plan;
+  document.getElementById("bar").style.width = progress + "%";
+}
+
+</script>
 
 </body>
 </html>
