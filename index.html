@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>ForgeFit AI</title>
+</head>
+<body style="font-family: Arial; text-align:center; padding:40px;">
+
+  <h1>💪 ForgeFit AI</h1>
+  <p>Twój trener AI</p>
+
+  <input id="goal" placeholder="Cel (np. masa)">
+  <br><br>
+
+  <button onclick="generate()">Generuj plan</button>
+
+  <pre id="output" style="margin-top:20px;"></pre>
+
+  <script>
+    function generate() {
+      const goal = document.getElementById("goal").value;
+
+      document.getElementById("output").innerText =
+        "Plan dla: " + goal + "\n\n" +
+        "1. Przysiady\n2. Wyciskanie\n3. Podciąganie\n4. Brzuch";
+    }
+  </script>
+
+</body>
+</html>
