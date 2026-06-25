@@ -1,80 +1,26 @@
 export default async function handler(event) {
   try {
-    console.log("HEADERS:", event.headers);
     console.log("RAW BODY:", event.body);
 
-    let body = {};
-
-    // 🧠 SUPER kompatybilne parsowanie
-    if (event.body) {
-      try {
-        body =
-          typeof event.body === "string"
-            ? JSON.parse(event.body)
-            : event.body;
-      } catch (e) {
-        console.log("PARSE ERROR:", e.message);
-        body = {};
-      }
-    }
+    const body = JSON.parse(event.body || "{}");
 
     console.log("PARSED BODY:", body);
 
-    const goal = body?.goal;
-
-    console.log("GOAL FINAL:", goal);
-
-    if (!goal) {
-      return new Response(
-        JSON.stringify({
-          plan: "Brak celu treningowego (goal)"
-        }),
-        {
-          headers: { "Content-Type": "application/json" }
-        }
-      );
-    }
-
-    const response = await fetch(
-      "https://api.openai.com/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
-        },
-        body: JSON.stringify({
-          model: "gpt-4o-mini",
-          messages: [
-            {
-              role: "system",
-              content: "Jesteś trenerem personalnym."
-            },
-            {
-              role: "user",
-              content: `Zrób plan dla celu: ${goal}`
-            }
-          ]
-        })
-      }
-    );
-
-    const data = await response.json();
-
+    // 🧪 NAJWAŻNIEJSZE – pokazujemy co przyszło
     return new Response(
       JSON.stringify({
-        plan:
-          data?.choices?.[0]?.message?.content ||
-          "AI nie odpowiedziało"
+        received: body,
+        goal: body.goal
       }),
       {
         headers: { "Content-Type": "application/json" }
       }
     );
+
   } catch (e) {
     return new Response(
       JSON.stringify({
-        plan: "Server error ❌ " + e.message
+        error: e.message
       }),
       {
         headers: { "Content-Type": "application/json" }
