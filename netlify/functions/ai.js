@@ -1,6 +1,17 @@
 export default async function handler(req) {
   try {
-    const { goal } = JSON.parse(req.body);
+    // Netlify czasem daje string, czasem obiekt
+    const body =
+      typeof req.body === "string" ? JSON.parse(req.body) : req.body;
+
+    const { goal } = body || {};
+
+    if (!goal) {
+      return new Response(
+        JSON.stringify({ plan: "Brak celu treningowego (goal)" }),
+        { headers: { "Content-Type": "application/json" }, status: 400 }
+      );
+    }
 
     const response = await fetch(
       "https://api.openai.com/v1/chat/completions",
@@ -16,7 +27,7 @@ export default async function handler(req) {
             {
               role: "system",
               content:
-                "Jesteś trenerem personalnym. Twórz krótkie i konkretne plany treningowe."
+                "Jesteś profesjonalnym trenerem personalnym. Tworzysz konkretne, krótkie plany treningowe."
             },
             {
               role: "user",
@@ -45,11 +56,9 @@ export default async function handler(req) {
       JSON.stringify({
         plan:
           data?.choices?.[0]?.message?.content ||
-          "AI nie zwróciło odpowiedzi."
+          "AI nie zwróciło odpowiedzi"
       }),
-      {
-        headers: { "Content-Type": "application/json" }
-      }
+      { headers: { "Content-Type": "application/json" } }
     );
   } catch (e) {
     return new Response(
