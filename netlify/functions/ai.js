@@ -1,21 +1,11 @@
-export default async (req) => {
+export default async function handler(event) {
   try {
-    let body = {};
-
-    // 🧠 Netlify: czasem string, czasem stream
-    try {
-      body = await req.json();
-    } catch {
-      body = {};
-    }
-
+    const body = JSON.parse(event.body || "{}");
     const goal = body.goal;
 
     if (!goal) {
       return new Response(
-        JSON.stringify({
-          plan: "Brak celu treningowego (goal)"
-        }),
+        JSON.stringify({ plan: "Brak celu treningowego (goal)" }),
         { headers: { "Content-Type": "application/json" } }
       );
     }
@@ -62,4 +52,4 @@ export default async (req) => {
       { headers: { "Content-Type": "application/json" } }
     );
   }
-};
+}
