@@ -1,5 +1,4 @@
 <script>
-
 function setGoal(value) {
   document.getElementById("goal").value = value;
 }
@@ -7,7 +6,7 @@ function setGoal(value) {
 async function generate() {
   const goal = document.getElementById("goal").value;
 
-  console.log("INPUT VALUE:", goal);
+  console.log("GOAL:", goal);
 
   if (!goal) {
     document.getElementById("output").innerText =
@@ -24,7 +23,7 @@ async function generate() {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ goal: goal })
+      body: JSON.stringify({ goal })
     });
 
     const data = await res.json();
@@ -32,7 +31,7 @@ async function generate() {
     console.log("RESPONSE:", data);
 
     document.getElementById("output").innerText =
-      data.plan || JSON.stringify(data);
+      data.plan || "Brak odpowiedzi AI";
   } catch (e) {
     document.getElementById("output").innerText =
       "Błąd połączenia z AI ❌";
@@ -40,5 +39,4 @@ async function generate() {
 
   document.getElementById("loading").innerText = "";
 }
-
 </script>
