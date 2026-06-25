@@ -1,37 +1,40 @@
 export default async function handler(event) {
   try {
-    // 🔍 DEBUG: co naprawdę przyszło z frontu
-    console.log("RAW EVENT BODY:", event.body);
+    console.log("HEADERS:", event.headers);
+    console.log("RAW BODY:", event.body);
 
     let body = {};
 
-    try {
-      body = JSON.parse(event.body || "{}");
-    } catch (e) {
-      console.log("JSON PARSE ERROR:", e.message);
-      body = {};
+    // 🧠 SUPER kompatybilne parsowanie
+    if (event.body) {
+      try {
+        body =
+          typeof event.body === "string"
+            ? JSON.parse(event.body)
+            : event.body;
+      } catch (e) {
+        console.log("PARSE ERROR:", e.message);
+        body = {};
+      }
     }
 
     console.log("PARSED BODY:", body);
 
-    const goal = body.goal;
+    const goal = body?.goal;
 
-    console.log("GOAL:", goal);
+    console.log("GOAL FINAL:", goal);
 
-    // ❗ brak danych
     if (!goal) {
       return new Response(
         JSON.stringify({
           plan: "Brak celu treningowego (goal)"
         }),
         {
-          headers: { "Content-Type": "application/json" },
-          status: 400
+          headers: { "Content-Type": "application/json" }
         }
       );
     }
 
-    // 🤖 OPENAI
     const response = await fetch(
       "https://api.openai.com/v1/chat/completions",
       {
@@ -74,8 +77,7 @@ export default async function handler(event) {
         plan: "Server error ❌ " + e.message
       }),
       {
-        headers: { "Content-Type": "application/json" },
-        status: 500
+        headers: { "Content-Type": "application/json" }
       }
     );
   }
