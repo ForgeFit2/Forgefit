@@ -1,33 +1,25 @@
-    export default async function handler(event) {
+export default async (req) => {
   try {
-    // 🧠 Bezpieczne odczytanie danych z frontu (Netlify bywa różne)
     let body = {};
 
+    // 🧠 Netlify: czasem string, czasem stream
     try {
-      body =
-        typeof event.body === "string"
-          ? JSON.parse(event.body)
-          : event.body || {};
-    } catch (e) {
+      body = await req.json();
+    } catch {
       body = {};
     }
 
     const goal = body.goal;
 
-    // ❗ brak danych z frontu
     if (!goal) {
       return new Response(
         JSON.stringify({
           plan: "Brak celu treningowego (goal)"
         }),
-        {
-          headers: { "Content-Type": "application/json" },
-          status: 400
-        }
+        { headers: { "Content-Type": "application/json" } }
       );
     }
 
-    // 🤖 OpenAI request
     const response = await fetch(
       "https://api.openai.com/v1/chat/completions",
       {
@@ -41,12 +33,11 @@
           messages: [
             {
               role: "system",
-              content:
-                "Jesteś profesjonalnym trenerem personalnym. Tworzysz konkretne, krótkie i skuteczne plany treningowe."
+              content: "Jesteś trenerem personalnym."
             },
             {
               role: "user",
-              content: `Zrób plan treningowy dla celu: ${goal}`
+              content: `Zrób plan dla celu: ${goal}`
             }
           ]
         })
@@ -55,40 +46,20 @@
 
     const data = await response.json();
 
-    // ❗ błąd OpenAI
-    if (!response.ok) {
-      return new Response(
-        JSON.stringify({
-          plan: `Błąd OpenAI: ${data.error?.message || "Nieznany błąd"}`
-        }),
-        {
-          headers: { "Content-Type": "application/json" },
-          status: 500
-        }
-      );
-    }
-
-    // ✅ sukces
     return new Response(
       JSON.stringify({
         plan:
           data?.choices?.[0]?.message?.content ||
-          "AI nie zwróciło odpowiedzi"
+          "AI nie odpowiedziało"
       }),
-      {
-        headers: { "Content-Type": "application/json" }
-      }
+      { headers: { "Content-Type": "application/json" } }
     );
   } catch (e) {
-    // 💀 fallback
     return new Response(
       JSON.stringify({
         plan: "Server error ❌ " + e.message
       }),
-      {
-        headers: { "Content-Type": "application/json" },
-        status: 500
-      }
+      { headers: { "Content-Type": "application/json" } }
     );
   }
-    }
+};
