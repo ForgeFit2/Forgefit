@@ -1,54 +1,47 @@
-export default async function handler(event) {
+exports.handler = async (event) => {
   try {
     console.log("RAW BODY:", event.body);
 
     let body = {};
 
-    // 🔥 KLUCZOWY FIX
     if (event.body) {
-      body =
-        typeof event.body === "string"
-          ? JSON.parse(event.body)
-          : event.body;
+      body = typeof event.body === "string"
+        ? JSON.parse(event.body)
+        : event.body;
     }
 
     console.log("PARSED BODY:", body);
 
-    const goal = body?.goal;
+    const goal = body.goal;
 
-    // 🔥 jeśli nadal puste
     if (!goal) {
-      return new Response(
-        JSON.stringify({
+      return {
+        statusCode: 400,
+        body: JSON.stringify({
           debug: {
             raw: event.body,
             parsed: body
           },
           plan: "Brak celu treningowego (goal)"
-        }),
-        {
-          headers: { "Content-Type": "application/json" }
-        }
-      );
+        })
+      };
     }
 
-    return new Response(
-      JSON.stringify({
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
         success: true,
-        goalReceived: goal
-      }),
-      {
-        headers: { "Content-Type": "application/json" }
-      }
-    );
+        goalReceived: goal,
+        plan: `Plan dla celu: ${goal}`
+      })
+    };
+
   } catch (e) {
-    return new Response(
-      JSON.stringify({
+    return {
+      statusCode: 500,
+      body: JSON.stringify({
         error: e.message
-      }),
-      {
-        headers: { "Content-Type": "application/json" }
-      }
-    );
+      })
+    };
   }
-}
+};
