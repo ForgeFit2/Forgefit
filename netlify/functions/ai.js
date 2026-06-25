@@ -1,13 +1,25 @@
-export default async function handler(event) {
+    export default async function handler(event) {
   try {
-    // 🔧 Bezpieczne parsowanie danych z frontu
-    const body = JSON.parse(event.body || "{}");
+    // 🧠 Bezpieczne odczytanie danych z frontu (Netlify bywa różne)
+    let body = {};
+
+    try {
+      body =
+        typeof event.body === "string"
+          ? JSON.parse(event.body)
+          : event.body || {};
+    } catch (e) {
+      body = {};
+    }
+
     const goal = body.goal;
 
-    // 🧠 Walidacja danych
+    // ❗ brak danych z frontu
     if (!goal) {
       return new Response(
-        JSON.stringify({ plan: "Brak celu treningowego (goal)" }),
+        JSON.stringify({
+          plan: "Brak celu treningowego (goal)"
+        }),
         {
           headers: { "Content-Type": "application/json" },
           status: 400
@@ -30,7 +42,7 @@ export default async function handler(event) {
             {
               role: "system",
               content:
-                "Jesteś profesjonalnym trenerem personalnym. Tworzysz krótkie, konkretne plany treningowe."
+                "Jesteś profesjonalnym trenerem personalnym. Tworzysz konkretne, krótkie i skuteczne plany treningowe."
             },
             {
               role: "user",
@@ -43,7 +55,7 @@ export default async function handler(event) {
 
     const data = await response.json();
 
-    // ❗ Obsługa błędów OpenAI
+    // ❗ błąd OpenAI
     if (!response.ok) {
       return new Response(
         JSON.stringify({
@@ -56,7 +68,7 @@ export default async function handler(event) {
       );
     }
 
-    // ✅ Sukces
+    // ✅ sukces
     return new Response(
       JSON.stringify({
         plan:
@@ -68,7 +80,7 @@ export default async function handler(event) {
       }
     );
   } catch (e) {
-    // 💀 Fallback error
+    // 💀 fallback
     return new Response(
       JSON.stringify({
         plan: "Server error ❌ " + e.message
@@ -79,4 +91,4 @@ export default async function handler(event) {
       }
     );
   }
-}
+    }
