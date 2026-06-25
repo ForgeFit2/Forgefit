@@ -1,15 +1,16 @@
-export default async function handler(req) {
+export default async function handler(event) {
   try {
-    // Netlify czasem daje string, czasem obiekt
     const body =
-      typeof req.body === "string" ? JSON.parse(req.body) : req.body;
+      typeof event.body === "string"
+        ? JSON.parse(event.body)
+        : event.body;
 
-    const { goal } = body || {};
+    const goal = body?.goal;
 
     if (!goal) {
       return new Response(
         JSON.stringify({ plan: "Brak celu treningowego (goal)" }),
-        { headers: { "Content-Type": "application/json" }, status: 400 }
+        { headers: { "Content-Type": "application/json" } }
       );
     }
 
@@ -19,19 +20,18 @@ export default async function handler(req) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
+          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
         },
         body: JSON.stringify({
           model: "gpt-4o-mini",
           messages: [
             {
               role: "system",
-              content:
-                "Jesteś profesjonalnym trenerem personalnym. Tworzysz konkretne, krótkie plany treningowe."
+              content: "Jesteś trenerem personalnym."
             },
             {
               role: "user",
-              content: `Zrób plan treningowy dla celu: ${goal}`
+              content: `Zrób plan treningowy dla: ${goal}`
             }
           ]
         })
@@ -40,35 +40,22 @@ export default async function handler(req) {
 
     const data = await response.json();
 
-    if (!response.ok) {
-      return new Response(
-        JSON.stringify({
-          plan: `Błąd OpenAI: ${data.error?.message || "Nieznany błąd"}`
-        }),
-        {
-          headers: { "Content-Type": "application/json" },
-          status: 500
-        }
-      );
-    }
-
     return new Response(
       JSON.stringify({
         plan:
           data?.choices?.[0]?.message?.content ||
-          "AI nie zwróciło odpowiedzi"
+          "AI nie odpowiedziało"
       }),
-      { headers: { "Content-Type": "application/json" } }
+      {
+        headers: { "Content-Type": "application/json" }
+      }
     );
   } catch (e) {
     return new Response(
       JSON.stringify({
-        plan: `Server error: ${e.message}`
+        plan: "server error ❌ " + e.message
       }),
-      {
-        headers: { "Content-Type": "application/json" },
-        status: 500
-      }
+      { headers: { "Content-Type": "application/json" } }
     );
   }
 }
