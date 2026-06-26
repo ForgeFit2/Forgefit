@@ -1,42 +1,158 @@
-<script>
-function setGoal(value) {
-  document.getElementById("goal").value = value;
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ForgeFit</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #0b0b0b;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
 }
 
-async function generate() {
-  const goal = document.getElementById("goal").value;
+.screen {
+  display: none;
+  width: 90%;
+  max-width: 420px;
+  text-align: center;
+}
 
-  console.log("GOAL:", goal);
+.active {
+  display: block;
+}
 
-  if (!goal) {
-    document.getElementById("output").innerText =
-      "Wpisz cel lub kliknij opcję 👆";
-    return;
+h1 {
+  letter-spacing: 3px;
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  margin-top: 10px;
+  border-radius: 12px;
+  border: none;
+  background: white;
+  color: black;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+input {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  margin-top: 10px;
+  text-align: center;
+}
+
+.tile {
+  padding: 14px;
+  margin-top: 10px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  cursor: pointer;
+}
+
+.tile:hover {
+  background: rgba(255,255,255,0.1);
+}
+</style>
+</head>
+
+<body>
+
+<!-- 1. START -->
+<div id="start" class="screen active">
+  <h1>FORGEFIT ⚒️</h1>
+  <p>Każdy mistrz był kiedyś początkującym.</p>
+
+  <input id="name" placeholder="Wpisz nick lub imię" />
+
+  <button onclick="nextScreen('goal')">
+    Rozpocznij
+  </button>
+</div>
+
+<!-- 2. CEL -->
+<div id="goal" class="screen">
+  <h2>Jaki masz cel?</h2>
+
+  <div class="tile" onclick="selectGoal('masa')">💪 Masa mięśniowa</div>
+  <div class="tile" onclick="selectGoal('redukcja')">🔥 Redukcja</div>
+  <div class="tile" onclick="selectGoal('sila')">⚡ Siła</div>
+  <div class="tile" onclick="selectGoal('kalis')">🤸 Kalistenika</div>
+
+  <button onclick="nextScreen('plan')">
+    Dalej
+  </button>
+</div>
+
+<!-- 3. PLAN (na razie placeholder) -->
+<div id="plan" class="screen">
+  <h2>Twój plan ⚒️</h2>
+
+  <p id="output">Wybierz cel aby wygenerować plan...</p>
+
+  <button onclick="goHome()">Powrót</button>
+</div>
+
+<script>
+let userName = "";
+let goal = "";
+
+function nextScreen(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+
+  if (id === "goal") {
+    userName = document.getElementById("name").value || "Athlete";
   }
 
-  document.getElementById("loading").innerText = "AI myśli... 🧠";
-  document.getElementById("output").innerText = "";
+  if (id === "plan") {
+    generatePlan();
+  }
+}
 
-  try {
-    const res = await fetch("/.netlify/functions/ai", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ goal })
-    });
+function selectGoal(g) {
+  goal = g;
+}
 
-    const data = await res.json();
+function generatePlan() {
+  let plan = "";
 
-    console.log("RESPONSE:", data);
-
-    document.getElementById("output").innerText =
-      data.plan || "Brak odpowiedzi AI";
-  } catch (e) {
-    document.getElementById("output").innerText =
-      "Błąd połączenia z AI ❌";
+  if (goal === "masa") {
+    plan = "Dzień 1: klatka + triceps\nPompki 4x max\nWyciskanie 4x8\nDipy 3x max";
   }
 
-  document.getElementById("loading").innerText = "";
+  if (goal === "redukcja") {
+    plan = "Cardio 20-30 min\nPompki 3x max\nBrzuch 4 serie\nSpacer 10k kroków";
+  }
+
+  if (goal === "sila") {
+    plan = "Pompki wolne 5x5\nDipy 4x6\nPodciąganie 4x max\nPrzerwy 2-3 min";
+  }
+
+  if (goal === "kalis") {
+    plan = "Handstand practice\nPompki 4x max\nCore training\nMobilność";
+  }
+
+  document.getElementById("output").innerText =
+    userName + "\n\n" + plan;
+}
+
+function goHome() {
+  nextScreen("start");
 }
 </script>
+
+</body>
+</html>
